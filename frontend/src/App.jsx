@@ -17,7 +17,7 @@ import { CAMERA_PROFILES } from './utils/cameraProfiles';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('live-map'); // Default to Screen 1 (Live Map)
+  const [activeTab, setActiveTab] = useState('showcase-quad'); // Default to 6-Camera Showcase
   const [selectedCam, setSelectedCam] = useState('CAM-072');
   const [user, setUser] = useState(null);
 
