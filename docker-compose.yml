@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: border_backend
+    environment:
+      # Local SQLite by default (portable). Point at Supabase for cloud:
+      # postgresql://postgres.<ref>:<pw>@aws-0-<region>.pooler.supabase.com:5432/postgres
+      - DATABASE_URL=sqlite:///./border_analytics.db
+      - DEMO_MODE=True
+      - SECRET_KEY=border-security-secret-key-super-secure-2026
+      # Supabase (optional platform services)
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY:-}
+      - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET:-}
+      - USE_SUPABASE_AUTH=false
+      # Dataset seeding
+      - DATA_CACHE_DIR=/app/data_cache
+      - DATASET_VIRAT_MAX_CLIPS=${DATASET_VIRAT_MAX_CLIPS:-3}
+      - DATASET_MOT17_SEQUENCES=${DATASET_MOT17_SEQUENCES:-3}
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_data:/app/data_cache
+    command: >
+      sh -c "python -m app.data.seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: border_frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:
